@@ -3,14 +3,10 @@
 
 // This is called at 8000 Hz to load the next sample.
 ISR(TIMER1_COMPA_vect) {
-  Audio::dacPlay();
+  Audio.dacPlay();
 }
 
-long Audio::_dacBufferWriteHead = 0;
-long Audio::_dacBufferPlayHead = 0;
-byte Audio::_dacBuffer[AUDIO_BUFFER_SIZE];
-
-void Audio::start() {
+void PWMAudio::start() {
 
   // (don't know why we need to do this)
   pinMode(AUDIO_SPEAKER_PIN, OUTPUT);
@@ -62,7 +58,7 @@ void Audio::start() {
   memset(_dacBuffer, 0, AUDIO_BUFFER_SIZE);
 }
   
-void Audio::stop() {
+void PWMAudio::stop() {
   // Disable playback per-sample interrupt.
   TIMSK1 &= ~_BV(OCIE1A);
 
@@ -75,11 +71,11 @@ void Audio::stop() {
   digitalWrite(AUDIO_SPEAKER_PIN, LOW);
 }
 
-void Audio::dacWrite(byte value) {
+void PWMAudio::dacWrite(byte value) {
   _dacBuffer[ (_dacBufferWriteHead++) % AUDIO_BUFFER_SIZE ] = value;
 }
   
-void Audio::dacPlay() {
+void PWMAudio::dacPlay() {
   // XXX we must add drop frame capability
   if (_dacBufferPlayHead < _dacBufferWriteHead)
     OCR2A = _dacBuffer[ (_dacBufferPlayHead++) % AUDIO_BUFFER_SIZE ];
