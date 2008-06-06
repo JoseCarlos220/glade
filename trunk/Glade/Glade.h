@@ -2,8 +2,8 @@
 
 #include "WConstants.h"
 
-#ifndef AUDIO_LINE_H
-#define AUDIO_LINE_H
+#ifndef GLADE_LINE_H
+#define GLADE_LINE_H
 
 // WHEN IN A .cpp FILE I NEED TO ADD THESE LINES (WHY??? I DON'T UNDERSTAND)
 /*#include <stdlib.h>
@@ -24,27 +24,27 @@ void operator delete(void * ptr)
 
 // Basic class
 ///////////////////////////////////////////
-class AudioNode {
+class GladeNode {
 public:
   byte output[BUFFER_SIZE];
-  AudioNode **inputs;
+  GladeNode **inputs;
   byte nInputs;
   
-  AudioNode(byte nInputs = 0) {
+  GladeNode(byte nInputs = 0) {
     this->nInputs = nInputs;
     if (nInputs > 0) {
-      inputs = (AudioNode**)malloc(nInputs*sizeof(AudioNode*));
+      inputs = (GladeNode**)malloc(nInputs*sizeof(GladeNode*));
       memset(inputs, 0, nInputs);
     }
     else
       inputs = 0;
   }
   
-  ~AudioNode() {
+  ~GladeNode() {
     destroy();
   }
   
-  void connect(byte input, AudioNode *node) {
+  void connect(byte input, GladeNode *node) {
     inputs[(int)input] = node;
   }
   
@@ -62,19 +62,19 @@ public:
 // Sources
 ///////////////////////////////////////////
 
-class AudioSquare : public AudioNode {
+class GladeSquare : public GladeNode {
 public:
   float frequency;
   int amplitude;
   float _phase;
   
-  AudioSquare(float frequency, int amplitude) : AudioNode(0) {
+  GladeSquare(float frequency, int amplitude) : GladeNode(0) {
     this->frequency = frequency;
     this->amplitude = amplitude;
     this->_phase = 0;
   }
   
-  ~AudioSquare() { AudioNode::destroy(); }
+  ~GladeSquare() { GladeNode::destroy(); }
   
   void fire() {
     int i;
@@ -89,7 +89,7 @@ public:
   
 };  
 
-class AudioClip : public AudioNode {
+class GladeClip : public GladeNode {
   float _phase;
 public:
   const prog_uchar *clip;
@@ -97,7 +97,7 @@ public:
   int clipHead;
   float speed;
   
-  AudioClip(const prog_uchar *clip, const int clipLength, int clipHead = 0) : AudioNode(0) {
+  GladeClip(const prog_uchar *clip, const int clipLength, int clipHead = 0) : GladeNode(0) {
     this->clip = clip;
     this->clipLength = clipLength;
     this->clipHead = clipHead;
@@ -105,8 +105,8 @@ public:
     _phase = 0;
   }
   
-  ~AudioClip() { 
-    AudioNode::destroy(); 
+  ~GladeClip() { 
+    GladeNode::destroy(); 
   }
   
   void fire() {
@@ -127,13 +127,13 @@ public:
 // Transformers
 ///////////////////////////////////////////
 
-class AudioBlend : public AudioNode {
+class GladeBlend : public GladeNode {
 public:
   byte blend;
-  AudioBlend(byte blend) : AudioNode(2) {
+  GladeBlend(byte blend) : GladeNode(2) {
     this->blend = blend;
   }
-  ~AudioBlend() { AudioNode::destroy(); }
+  ~GladeBlend() { GladeNode::destroy(); }
   
   void fire() {
     int i;
@@ -148,21 +148,21 @@ public:
   
 };
 
-class AudioDelay : public AudioNode {
+class GladeDelay : public GladeNode {
   byte *_record;
   int _delayLength;
   int _currentIndex;
   
 public:
-  AudioDelay(int delayLength) : AudioNode(1) {
+  GladeDelay(int delayLength) : GladeNode(1) {
     _record = (byte*) malloc(delayLength * sizeof(byte));
     _currentIndex = 0;
     _delayLength = delayLength;
   }
   
-  ~AudioDelay() { 
+  ~GladeDelay() { 
     free(_record);
-    AudioNode::destroy(); 
+    GladeNode::destroy(); 
   }
   
   void fire() {
@@ -181,38 +181,38 @@ public:
 // Sinks
 ///////////////////////////////////////////
 
-class AudioOutput : public AudioNode {
+class GladeOutput : public GladeNode {
 public:
-  AudioOutput() : AudioNode(1) {
+  GladeOutput() : GladeNode(1) {
   }
   
-  ~AudioOutput() { AudioNode::destroy(); }
+  ~GladeOutput() { GladeNode::destroy(); }
   
   void fire() {
     int i;
     byte *in = this->inputs[0]->output;
 //    unsigned long period = 1000000 / SAMPLE_RATE - 7; // subtract 7 us to make up for analogWrite overhead - determined empirically
     for (i=0; i<BUFFER_SIZE; i++) {
-      Audio::dacWrite(*in++);
+      Audio.dacWrite(*in++);
     }
   }
   
 };
 
-AudioOutput dac;
+GladeOutput dac;
 
-#define AUDIO_LINE_MAX_NODES 32
-class AudioLine {
-  static AudioNode *_line[AUDIO_LINE_MAX_NODES];
-  static int _nNodes;
+#define Glade_LINE_MAX_NODES 32
+class GladeEngine {
+  GladeNode *_line[Glade_LINE_MAX_NODES];
+  int _nNodes;
   
 public:
-  static void build() {
+  void build() {
     _nNodes = 0;
     _build(&dac);
   }
   
-  static void _build(AudioNode *node) {
+  void _build(GladeNode *node) {
     if (node) {
       for (int i=0; i<_nNodes; i++) {
         if (_line[i] == node) // node already in line (feedback)
@@ -225,14 +225,13 @@ public:
     }
   }
   
-  static void run() {
+  void run() {
     for (int i=_nNodes-1; i>=0; i--)
       _line[i]->fire();
   }
 };
 
-AudioNode *AudioLine::_line[AUDIO_LINE_MAX_NODES];
-int AudioLine::_nNodes = 0;  
+GladeEngine Glade;
 
 
 #endif
