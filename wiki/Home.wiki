@@ -3,22 +3,22 @@
 = Introduction =
 
 *Glade* is a simple, easy-to-use, 8-bit audio library for the [http://www.arduino.cc/ Arduino]. It allows you to play sound on the pin 11 of the Arduino board using PWM. The library is separated in two:
-# the *Audio* library provides a simple interface for 8-bit audio playback, inspired from [http://www.arduino.cc/playground/Code/PCMAudio this code]
-# the *Glade* library provides a framework for audio plugins that can be linked to one another in a dataflow-like way, inspired from [http://chuck.cs.princeton.edu/ ChucK] and [http://puredata.info/ PureData]
+ # the *Audio* library provides a simple interface for 8-bit audio playback, inspired from [http://www.arduino.cc/playground/Code/PCMAudio this code]
+ # the *Glade* library provides a framework for audio plugins that can be linked to one another in a dataflow-like way, inspired from [http://chuck.cs.princeton.edu/ ChucK] and [http://puredata.info/ PureData]
 
 = Features =
 
 == Supported ==
-* mono audio playback
-* dataflow connections
-* feedback
-* generators: square wave, audio clip
-* transformers/filters: blend, delay
-* sinks: output (dac)
+ * mono audio playback
+ * dataflow connections
+ * feedback
+ * generators: square wave, audio clip
+ * transformers/filters: blend, delay
+ * sinks: output (dac)
 
 == Targeted ==
-* stereo audio playback
-* generators: triangle/razor wave, sine wave (osc)
+ * stereo audio playback
+ * generators: triangle/razor wave, sine wave (osc)
 
 = Example =
 {{{
