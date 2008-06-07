@@ -36,7 +36,7 @@ void setup() {
 
 void loop()
 {
-  source.frequency++; // will slowly increase frequency
+  source.frequency += 0.001; // will slowly increase frequency
   Glade.run(); // run audio
 }
 }}}
