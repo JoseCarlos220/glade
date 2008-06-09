@@ -16,6 +16,8 @@
 */
 
 #include "WProgram.h"
+#include "WConstants.h"
+
 #include "Audio.h"
 
 // This is called at 8000 Hz to load the next sample.
@@ -89,6 +91,8 @@ void PWMAudio::stop() {
 }
 
 void PWMAudio::dacWrite(byte value) {
+  // avoid overflowing the audio buffer (wait until space available)
+//  while (_dacBufferWriteHead - _dacBufferPlayHead >= AUDIO_BUFFER_SIZE);
   _dacBuffer[ (_dacBufferWriteHead++) % AUDIO_BUFFER_SIZE ] = value;
 }
   
@@ -98,3 +102,5 @@ void PWMAudio::dacPlay() {
     OCR2A = _dacBuffer[ (_dacBufferPlayHead++) % AUDIO_BUFFER_SIZE ];
 //    analogWrite(AUDIO_SPEAKER_PIN, _dacBuffer[ (_dacBufferPlayHead++) % AUDIO_BUFFER_SIZE ]);
 }
+
+PWMAudio Audio = PWMAudio();

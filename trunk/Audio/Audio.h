@@ -18,15 +18,16 @@
 #include "WConstants.h"
 
 #include <stdint.h>
+#include <string.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
-#ifndef PWMAudio_H
-#define PWMAudio_H
+#ifndef AUDIO_H
+#define AUDIO_H
 
 #define AUDIO_SPEAKER_PIN 11
-#define AUDIO_BUFFER_SIZE 256
+#define AUDIO_BUFFER_SIZE 64
 
 // XXX should be a  variable from PWMAudio
 #define SAMPLE_RATE 8000 // The number of Hz 
@@ -35,7 +36,7 @@ class PWMAudio {
 
   byte _dacBuffer[AUDIO_BUFFER_SIZE];
   long _dacBufferWriteHead;
-  long _dacBufferPlayHead;
+  volatile long _dacBufferPlayHead;
   
 public:
   
@@ -45,6 +46,6 @@ public:
   void dacPlay();
 };
 
-PWMAudio Audio;
+extern PWMAudio Audio;
 
 #endif
