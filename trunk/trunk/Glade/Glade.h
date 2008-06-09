@@ -140,34 +140,20 @@ public:
 
 extern GladeOutput dac;
 
-#define Glade_LINE_MAX_NODES 32
+// GladeEngine
+///////////////////////////////////////////
+
+#define GLADE_LINE_MAX_NODES 32
 class GladeEngine {
-  GladeNode *_line[Glade_LINE_MAX_NODES];
+  GladeNode *_line[GLADE_LINE_MAX_NODES];
   int _nNodes;
   
+protected:
+  void _build(GladeNode *node);
+
 public:
-  void build() {
-    _nNodes = 0;
-    _build(&dac);
-  }
-  
-  void _build(GladeNode *node) {
-    if (node) {
-      for (int i=0; i<_nNodes; i++) {
-        if (_line[i] == node) // node already in line (feedback)
-          return;
-      }
-      _line[_nNodes++] = node;
-      for (int i=0; i<node->nInputs; i++) {
-        _build(node->inputs[i]);
-      }
-    }
-  }
-  
-  void run() {
-    for (int i=_nNodes-1; i>=0; i--)
-      _line[i]->fire();
-  }
+  void build();
+  void run();  
 };
 
 extern GladeEngine Glade;
