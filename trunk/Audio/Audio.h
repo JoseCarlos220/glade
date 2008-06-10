@@ -4,6 +4,10 @@
  * (c) 2008 Sofian Audry (info@sofianaudry.com)
  *          Jean-Sébastien Senécal (js@drone.ws)
  *
+ * This code is an wrapper around the speaker_pcm program by
+ * Michael Smith (michael@hurts.ca), available at 
+ * http://www.arduino.cc/playground/Code/PCMAudio
+ *
  * Glade is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
