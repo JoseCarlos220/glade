@@ -36,18 +36,17 @@
 #define AUDIO_SPEAKER_PIN 11
 #define AUDIO_BUFFER_SIZE 64
 
-// XXX should be a  variable from PWMAudio
-#define SAMPLE_RATE 8000 // The number of Hz 
-
 class PWMAudio {
 
   byte _dacBuffer[AUDIO_BUFFER_SIZE];
   long _dacBufferWriteHead;
+  long _sampleRate;
   volatile long _dacBufferPlayHead;
   
 public:
+  long getSampleRate() const { return _sampleRate; }
   
-  void start();
+  void start(long sampleRate = 8000);
   void stop();
   void dacWrite(byte value);  
   void dacPlay();
