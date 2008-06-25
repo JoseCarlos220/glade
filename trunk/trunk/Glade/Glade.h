@@ -34,6 +34,10 @@
 
 #define BUFFER_SIZE 16
 
+typedef signed char signal;
+#define SIGNAL_MAX 127
+#define SIGNAL_MIN -128
+
 /* Clamps a int32-range int between 0 and 255 inclusive. */
 //#ifndef CLAMP0255
 //unsigned char CLAMP0255(int a)
@@ -43,6 +47,8 @@
 //      | (255 - a) >> 15); // -1 if the number was greater than 255
 //}
 //#endif
+
+#define CLAMP(x,l,h) ((x) < (l) ? (l) : ( (x) > (h) ? (h) : (x) ))
 
 /* Provided temporary int t, returns a * b / 255 */
 #define INT_MULT(a,b,t)  ((t) = (a) * (b) + 0x80, ((((t) >> 8) + (t)) >> 8))
@@ -59,7 +65,7 @@
 ///////////////////////////////////////////
 class GladeNode {
 public:
-  byte output[BUFFER_SIZE];
+  signal output[BUFFER_SIZE];
   GladeNode **inputs;
   byte nInputs;
   
@@ -79,10 +85,11 @@ public:
 class GladeSquare : public GladeNode {
 public:
   float frequency;
-  int amplitude;
+  float dutyCycle;
   float _phase;
+  byte amplitude;
   
-  GladeSquare(float frequency, int amplitude);
+  GladeSquare(float frequency, float amplitude = 1.0f, float dutyCycle = 0.5f);
   ~GladeSquare();
   
   void fire();
@@ -113,6 +120,14 @@ public:
   byte blend;
   GladeBlend(byte blend);
   ~GladeBlend();
+  
+  void fire();
+};
+
+class GladeAdd : public GladeNode {
+public:
+  GladeAdd();
+  ~GladeAdd();
   
   void fire();
 };
