@@ -22,6 +22,9 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Currently only works for ATmega168
+#if defined(__AVR_ATmega168__)
+
 #include "WProgram.h"
 #include "WConstants.h"
 
@@ -32,8 +35,9 @@ ISR(TIMER1_COMPA_vect) {
   Audio.dacPlay();
 }
 
-void PWMAudio::start() {
-
+void PWMAudio::start(long sampleRate) {
+  _sampleRate = sampleRate;
+  
   // (don't know why we need to do this)
   pinMode(AUDIO_SPEAKER_PIN, OUTPUT);
 
@@ -73,7 +77,7 @@ void PWMAudio::start() {
   // Set the compare register (OCR1A).
   // OCR1A is a 16-bit register, so we have to do this with
   // interrupts disabled to be safe.
-  OCR1A = F_CPU / SAMPLE_RATE;    // 16e6 / 8000 = 2000
+  OCR1A = F_CPU / _sampleRate;    // 16e6 / 8000 = 2000
 
   // Enable interrupt when TCNT1 == OCR1A (p.136)
   TIMSK1 |= _BV(OCIE1A);
@@ -111,3 +115,5 @@ void PWMAudio::dacPlay() {
 }
 
 PWMAudio Audio = PWMAudio();
+
+#endif
