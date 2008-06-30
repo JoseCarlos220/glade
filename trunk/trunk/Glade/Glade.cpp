@@ -182,17 +182,23 @@ void GladeDelay::fire() {
 // GladeOutput
 ///////////////////////////////////////////
 
-GladeOutput::GladeOutput() : GladeNode(1) {
+GladeOutput::GladeOutput() : GladeNode(2) {
 }
 
 GladeOutput::~GladeOutput() { GladeNode::destroy(); }
 
 void GladeOutput::fire() {
   int i;
-  signal *in = this->inputs[0]->output;
-//    unsigned long period = 1000000 / SAMPLE_RATE - 7; // subtract 7 us to make up for analogWrite overhead - determined empirically
-  for (i=0; i<BUFFER_SIZE; i++) {
-    Audio.dacWrite((*in++) + 128);
+  // Can play stereo if supported.
+  for (int c=0; c<nInputs; c++) {
+    signal *in = this->inputs[c]->output;
+    if (in) {
+      //    unsigned long period = 1000000 / SAMPLE_RATE - 7; 
+      // subtract 7 us to make up for analogWrite overhead - determined empirically
+      for (i=0; i<BUFFER_SIZE; i++) {
+        Audio.write( (byte) (((int)*in++) + 128), c);
+      }
+    }
   }
 }
 
@@ -217,11 +223,17 @@ void GladeEngine::build() {
   _build(&dac);
 }
 
-void GladeEngine::run() {
+void GladeEngine::step() {
   for (int i=_nNodes-1; i>=0; i--)
     _line[i]->fire();
 }
 
+void GladeEngine::run(long time) {
+  time += millis(); // reuse the variable to set max time
+  while (millis() < time) {
+    step();
+  }
+}
 
 GladeOutput dac = GladeOutput();
 GladeEngine Glade = GladeEngine();
