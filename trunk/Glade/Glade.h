@@ -171,7 +171,8 @@ protected:
 
 public:
   void build();
-  void run();  
+  void step();
+  void run(long time);
 };
 
 extern GladeEngine Glade;
