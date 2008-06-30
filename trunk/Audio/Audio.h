@@ -33,23 +33,43 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#define AUDIO_SPEAKER_PIN 11
-#define AUDIO_BUFFER_SIZE 64
+#define AUDIO_LEFT_PIN 3
+#define AUDIO_RIGHT_PIN 11
+
+#define AUDIO_BUFFER_SIZE 32
+
+#define MONO 1
+#define STEREO 2
+
+#define LEFT 0
+#define RIGHT 1
+
+class DACBuffer {
+  byte _buffer[AUDIO_BUFFER_SIZE];
+  long _writeHead;
+  volatile long _playHead;
+public:
+  DACBuffer();
+  inline boolean write(byte value);
+  inline boolean read(byte *value);
+};
 
 class PWMAudio {
-
-  byte _dacBuffer[AUDIO_BUFFER_SIZE];
-  long _dacBufferWriteHead;
+  DACBuffer _buffers[2];
   long _sampleRate;
-  volatile long _dacBufferPlayHead;
+  byte _nChannels;
   
 public:
-  long getSampleRate() const { return _sampleRate; }
+  PWMAudio();
   
-  void start(long sampleRate = 8000);
+  long getSampleRate() const { return _sampleRate; }
+  byte nChannels() const { return _nChannels; }
+  
+  void start(byte nChannels = MONO, long sampleRate = 8000);
   void stop();
-  void dacWrite(byte value);  
-  void dacPlay();
+  
+  void write(byte value, byte channel = LEFT);
+  void play();
 };
 
 extern PWMAudio Audio;
