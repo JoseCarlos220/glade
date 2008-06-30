@@ -30,16 +30,52 @@
 
 #include "Audio.h"
 
-// This is called at 8000 Hz to load the next sample.
-ISR(TIMER1_COMPA_vect) {
-  Audio.dacPlay();
+DACBuffer::DACBuffer() {
+  _playHead = _writeHead = 0;
+  memset(_buffer, 0, AUDIO_BUFFER_SIZE);
 }
 
-void PWMAudio::start(long sampleRate) {
+boolean DACBuffer::write(byte value) {
+  // avoid overflowing the audio buffer (wait until space available)
+  if (_writeHead - _playHead < AUDIO_BUFFER_SIZE) {
+    _buffer[ (_writeHead++) % AUDIO_BUFFER_SIZE ] = value;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+boolean DACBuffer::read(byte *value) {
+  if (_playHead < _writeHead) {
+    // XXX we must add drop frame capability
+    *value = _buffer[ (_playHead++) % AUDIO_BUFFER_SIZE ];
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// This is called at 8000 Hz to load the next sample.
+ISR(TIMER1_COMPA_vect) {
+  Audio.play();
+}
+
+PWMAudio::PWMAudio() : _sampleRate(0), _nChannels(-1) {}
+
+void PWMAudio::start(byte nChannels, long sampleRate) {
+  // Set n channels.
+  _nChannels = nChannels;
+
+  // Set sample rate
   _sampleRate = sampleRate;
   
   // (don't know why we need to do this)
-  pinMode(AUDIO_SPEAKER_PIN, OUTPUT);
+  switch (_nChannels) {
+  case STEREO:
+    pinMode(AUDIO_RIGHT_PIN, OUTPUT);
+  case MONO:
+    pinMode(AUDIO_LEFT_PIN, OUTPUT);
+  }
 
   // Set up Timer 2 to do pulse width modulation on the speaker
   // pin.
@@ -83,9 +119,6 @@ void PWMAudio::start(long sampleRate) {
   TIMSK1 |= _BV(OCIE1A);
 
   sei();
-  
-  _dacBufferPlayHead = _dacBufferWriteHead = 0;
-  memset(_dacBuffer, 0, AUDIO_BUFFER_SIZE);
 }
   
 void PWMAudio::stop() {
@@ -98,20 +131,29 @@ void PWMAudio::stop() {
   // Disable the PWM timer.
   TCCR2B &= ~_BV(CS10);
   
-  digitalWrite(AUDIO_SPEAKER_PIN, LOW);
+  switch (_nChannels) {
+  case STEREO:
+    digitalWrite(AUDIO_RIGHT_PIN, LOW);
+  case MONO:
+    digitalWrite(AUDIO_LEFT_PIN, LOW);
+  }
 }
 
-void PWMAudio::dacWrite(byte value) {
-  // avoid overflowing the audio buffer (wait until space available)
-//  while (_dacBufferWriteHead - _dacBufferPlayHead >= AUDIO_BUFFER_SIZE);
-  _dacBuffer[ (_dacBufferWriteHead++) % AUDIO_BUFFER_SIZE ] = value;
+void PWMAudio::write(byte value, byte channel) {
+  if (channel < 2)
+    _buffers[channel].write(value);
 }
   
-void PWMAudio::dacPlay() {
-  // XXX we must add drop frame capability
-  if (_dacBufferPlayHead < _dacBufferWriteHead)
-    OCR2A = _dacBuffer[ (_dacBufferPlayHead++) % AUDIO_BUFFER_SIZE ];
-//    analogWrite(AUDIO_SPEAKER_PIN, _dacBuffer[ (_dacBufferPlayHead++) % AUDIO_BUFFER_SIZE ]);
+void PWMAudio::play() {
+  byte value;
+  switch (_nChannels) {
+  case STEREO:
+    if (_buffers[RIGHT].read(&value))
+      analogWrite(AUDIO_RIGHT_PIN, value);
+  case MONO:
+    if (_buffers[LEFT].read(&value))
+      analogWrite(AUDIO_LEFT_PIN, value);
+  }
 }
 
 PWMAudio Audio = PWMAudio();
