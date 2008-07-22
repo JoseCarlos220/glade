@@ -22,8 +22,6 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "WConstants.h"
-
 #include <stdint.h>
 #include <string.h>
 #include <avr/interrupt.h>
