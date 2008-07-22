@@ -22,9 +22,6 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Currently only works for ATmega168
-#if defined(__AVR_ATmega168__)
-
 #include "WProgram.h"
 #include "WConstants.h"
 
@@ -60,7 +57,7 @@ ISR(TIMER1_COMPA_vect) {
   Audio.play();
 }
 
-PWMAudio::PWMAudio() : _sampleRate(0), _nChannels(-1) {}
+PWMAudio::PWMAudio() : _sampleRate(0), _nChannels(MONO) {}
 
 void PWMAudio::start(byte nChannels, long sampleRate) {
   // Set n channels.
@@ -80,23 +77,43 @@ void PWMAudio::start(byte nChannels, long sampleRate) {
   // Set up Timer 2 to do pulse width modulation on the speaker
   // pin.
 
+#if defined(__AVR_ATmega168__)
   // Use internal clock (datasheet p.160)
   ASSR &= ~(_BV(EXCLK) | _BV(AS2));
+#else
+  ASSR &= ~_BV(AS2);
+#endif
 
   // Set fast PWM mode  (p.157)
+#if defined(__AVR_ATmega168__)
   TCCR2A |= _BV(WGM21) | _BV(WGM20);
   TCCR2B &= ~_BV(WGM22);
+#else
+  TCCR2 |= _BV(WGM21) | _BV(WGM20);
+#endif
 
   // Do non-inverting PWM on pin OC2A (p.155)
   // On the Arduino this is pin 11.
+#if defined(__AVR_ATmega168__)
   TCCR2A = (TCCR2A | _BV(COM2A1)) & ~_BV(COM2A0);
   TCCR2A &= ~(_BV(COM2B1) | _BV(COM2B0));
+#else
+  TCCR2 = (TCCR2 | _BV(COM21)) & ~_BV(COM20);
+#endif
 
   // No prescaler (p.158)
+#if defined(__AVR_ATmega168__)
   TCCR2B = (TCCR2B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
+#else
+  TCCR2 = (TCCR2 & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
+#endif
 
   // Set initial pulse width to the first sample.
+#if defined(__AVR_ATmega168__)
   OCR2A = 0;
+#else
+  OCR2 = 0;
+#endif
 
   // Set up Timer 1 to send a sample every interrupt.
 
@@ -116,20 +133,32 @@ void PWMAudio::start(byte nChannels, long sampleRate) {
   OCR1A = F_CPU / _sampleRate;    // 16e6 / 8000 = 2000
 
   // Enable interrupt when TCNT1 == OCR1A (p.136)
+#if defined(__AVR_ATmega168__)
   TIMSK1 |= _BV(OCIE1A);
+#else
+  TIMSK |= _BV(OCIE1A);
+#endif
 
   sei();
 }
   
 void PWMAudio::stop() {
   // Disable playback per-sample interrupt.
+#if defined(__AVR_ATmega168__)
   TIMSK1 &= ~_BV(OCIE1A);
+#else
+  TIMSK &= ~_BV(OCIE1A);
+#endif
 
   // Disable the per-sample timer completely.
   TCCR1B &= ~_BV(CS10);
 
   // Disable the PWM timer.
+#if defined(__AVR_ATmega168__)
   TCCR2B &= ~_BV(CS10);
+#else
+  TCCR2 &= ~_BV(CS10);
+#endif
   
   switch (_nChannels) {
   case STEREO:
@@ -157,6 +186,3 @@ void PWMAudio::play() {
 }
 
 PWMAudio Audio = PWMAudio();
-#else
-#warning "This library only works for ATmega168"
-#endif

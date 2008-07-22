@@ -31,8 +31,14 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#if defined(__AVR_ATmega168__)
 #define AUDIO_LEFT_PIN 3
 #define AUDIO_RIGHT_PIN 11
+#else
+// no stereo support for now on ATmega8
+#define AUDIO_LEFT_PIN 11
+#define AUDIO_RIGHT_PIN 11
+#endif
 
 #define AUDIO_BUFFER_SIZE 32
 
