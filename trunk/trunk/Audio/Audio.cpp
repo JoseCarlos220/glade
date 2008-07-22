@@ -157,5 +157,6 @@ void PWMAudio::play() {
 }
 
 PWMAudio Audio = PWMAudio();
-
+#else
+#warning "This library only works for ATmega168"
 #endif
