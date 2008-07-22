@@ -24,5 +24,5 @@ void loop()
       break;
     }
   }
-  Glade.run();
+  Glade.step();
 }
