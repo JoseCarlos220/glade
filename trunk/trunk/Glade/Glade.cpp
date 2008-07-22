@@ -18,9 +18,6 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Currently only works for ATmega168
-#if defined(__AVR_ATmega168__)
-
 #include "WProgram.h"
 #include "WConstants.h"
 
@@ -33,7 +30,7 @@ void * operator new(size_t size)
   return malloc(size);
 }
 #endif
-#ifndef new
+#ifndef delete
 void operator delete(void * ptr)
 {
   free(ptr);
@@ -237,5 +234,3 @@ void GladeEngine::run(long time) {
 
 GladeOutput dac = GladeOutput();
 GladeEngine Glade = GladeEngine();
-
-#endif
