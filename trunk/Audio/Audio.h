@@ -49,30 +49,30 @@
 #define RIGHT 1
 
 class DACBuffer {
-  byte _buffer[AUDIO_BUFFER_SIZE];
+  uint8_t _buffer[AUDIO_BUFFER_SIZE];
   long _writeHead;
   volatile long _playHead;
 public:
   DACBuffer();
-  inline boolean write(byte value);
-  inline boolean read(byte *value);
+  inline bool write(uint8_t value);
+  inline bool read(uint8_t *value);
 };
 
 class PWMAudio {
   DACBuffer _buffers[2];
   long _sampleRate;
-  byte _nChannels;
+  uint8_t _nChannels;
   
 public:
   PWMAudio();
   
   long getSampleRate() const { return _sampleRate; }
-  byte nChannels() const { return _nChannels; }
+  uint8_t nChannels() const { return _nChannels; }
   
-  void start(byte nChannels = MONO, long sampleRate = 8000);
+  void start(uint8_t nChannels = MONO, long sampleRate = 8000);
   void stop();
   
-  void write(byte value, byte channel = LEFT);
+  void write(uint8_t value, uint8_t channel = LEFT);
   void play();
 };
 
