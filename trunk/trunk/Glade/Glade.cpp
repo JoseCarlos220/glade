@@ -18,9 +18,9 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "WProgram.h"
+// For some reason stdlib MUST be included BEFORE WConstants.h
+#include <stdlib.h>
 #include "WConstants.h"
-
 #include "Glade.h"
 
 // WHEN IN A .cpp FILE I NEED TO ADD THESE LINES (WHY??? I DON'T UNDERSTAND)
@@ -40,7 +40,7 @@ void operator delete(void * ptr)
 // GladeNode
 ///////////////////////////////////////////
 
-GladeNode::GladeNode(byte nInputs) {
+GladeNode::GladeNode(uint8_t nInputs) {
   this->nInputs = nInputs;
   if (nInputs > 0)
     inputs = (GladeNode**)malloc(nInputs*sizeof(GladeNode*));
@@ -52,7 +52,7 @@ GladeNode::~GladeNode() {
   destroy();
 }
 
-void GladeNode::connect(byte input, GladeNode *node) {
+void GladeNode::connect(uint8_t input, GladeNode *node) {
   inputs[(int)input] = node;
 }
 
@@ -62,118 +62,6 @@ void GladeNode::destroy() {
 
 void GladeNode::fire() {
   memset(this->output, 0, BUFFER_SIZE);
-}
-
-// GladeSquare
-///////////////////////////////////////////
-
-GladeSquare::GladeSquare(float frequency, float amplitude, float dutyCycle) : GladeNode(0) {
-  this->frequency = frequency;
-  this->amplitude = (byte) constrain(amplitude * SIGNAL_MAX, 0, SIGNAL_MAX);
-  this->dutyCycle = dutyCycle;
-  this->_phase = 0;
-}
-
-GladeSquare::~GladeSquare() { GladeNode::destroy(); }
-
-void GladeSquare::fire() {
-  int i;
-  float num = (float)this->frequency / (float)Audio.getSampleRate();
-  signal* out = this->output;
-  for (i=0; i<BUFFER_SIZE; i++) {
-    *out++ = (this->_phase < this->dutyCycle ? +this->amplitude : -this->amplitude);
-    this->_phase += num;
-    if (this->_phase > 1) this->_phase = 0;
-  }
-}
-
-// GladeClip
-///////////////////////////////////////////
-GladeClip::GladeClip(const prog_uchar *clip, const int clipLength, int offset) : GladeNode(0) {
-  this->clip = clip;
-  this->clipLength = clipLength;
-  this->clipHead = clipHead;
-  this->offset = offset;
-  speed = 1.0f;
-  _phase = 0;
-}
-
-GladeClip::~GladeClip() { 
-  GladeNode::destroy(); 
-}
-
-void GladeClip::fire() {
-  int i;
-  signal *out = output;
-  for (i=0; i<BUFFER_SIZE; i++) {
-    *out++ = (pgm_read_byte(&clip[(clipHead + offset) % clipLength]) + SIGNAL_MIN);
-    _phase += speed;
-    if (_phase >= 1) {
-      clipHead = (clipHead + (int)_phase) % clipLength;
-      _phase -= (int)_phase;
-    }
-  }
-}
-
-// GladeAdd
-///////////////////////////////////////////
-GladeAdd::GladeAdd() : GladeNode(2) {
-}
-GladeAdd::~GladeAdd() { GladeNode::destroy(); }
-
-void GladeAdd::fire() {
-  int i;
-  signal* out = this->output;
-  signal *input1 = this->inputs[0]->output;
-  signal *input2 = this->inputs[1]->output;
-  for (i=0; i<BUFFER_SIZE; i++) {
-    *out++ = (signal) CLAMP(((int)*input1++) + ((int)*input2++), SIGNAL_MIN, SIGNAL_MAX);
-  }
-}
-
-// GladeBlend
-///////////////////////////////////////////
-GladeBlend::GladeBlend(byte blend) : GladeNode(2) {
-  this->blend = blend;
-}
-GladeBlend::~GladeBlend() { GladeNode::destroy(); }
-
-void GladeBlend::fire() {
-  int i;
-  int tmp;
-  signal* out = this->output;
-  signal *input1 = this->inputs[0]->output;
-  signal *input2 = this->inputs[1]->output;
-  for (i=0; i<BUFFER_SIZE; i++) {
-    *out++ = INT_BLEND(  ((int)(*input1)),  ((int)(*input2)), blend, tmp );
-    input1++; input2++;
-  }
-}
-
-// GladeDelay
-///////////////////////////////////////////
-
-GladeDelay::GladeDelay(int delayLength) : GladeNode(1) {
-  _record = (byte*) malloc(delayLength * sizeof(byte));
-  _currentIndex = 0;
-  _delayLength = delayLength;
-}
-
-GladeDelay::~GladeDelay() { 
-  free(_record);
-  GladeNode::destroy(); 
-}
-
-void GladeDelay::fire() {
-  int i;
-  signal *in = inputs[0]->output;
-  signal *out = output;
-  for (i=0; i<BUFFER_SIZE; i++) {
-    _record[_currentIndex] = *in++;
-    // boaf...
-    *out++ = _record[ (_currentIndex + _delayLength) % _delayLength ];
-    _currentIndex = (++_currentIndex) % _delayLength;
-  }
 }
 
 // GladeOutput
@@ -193,7 +81,7 @@ void GladeOutput::fire() {
       //    unsigned long period = 1000000 / SAMPLE_RATE - 7; 
       // subtract 7 us to make up for analogWrite overhead - determined empirically
       for (i=0; i<BUFFER_SIZE; i++) {
-        Audio.write( (byte) (((int)*in++) + 128), c);
+        Audio.write( (uint8_t) (((int)*in++) + 128), c);
       }
     }
   }

@@ -25,10 +25,8 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 
-#ifndef GLADE_H___
-#define GLADE_H___
-//#ifndef GLADE_H
-//#define GLADE_H
+#ifndef GLADE_H
+#define GLADE_H
 
 #define BUFFER_SIZE 16
 
@@ -65,81 +63,15 @@ class GladeNode {
 public:
   signal output[BUFFER_SIZE];
   GladeNode **inputs;
-  byte nInputs;
+  uint8_t nInputs;
   
-  GladeNode(byte nInputs = 0);  
+  GladeNode(uint8_t nInputs = 0);  
   virtual ~GladeNode();
   
-  void connect(byte input, GladeNode *node);
+  void connect(uint8_t input, GladeNode *node);
   void destroy();
   
   virtual void fire();
-};
-
-
-// Sources
-///////////////////////////////////////////
-
-class GladeSquare : public GladeNode {
-public:
-  float frequency;
-  float dutyCycle;
-  float _phase;
-  byte amplitude;
-  
-  GladeSquare(float frequency, float amplitude = 1.0f, float dutyCycle = 0.5f);
-  ~GladeSquare();
-  
-  void fire();
-  
-};  
-
-class GladeClip : public GladeNode {
-  float _phase;
-public:
-  const prog_uchar *clip;
-  int clipLength;
-  int clipHead;
-  int offset;
-  float speed;
-  
-  GladeClip(const prog_uchar *clip, const int clipLength, int offset = 0);
-  ~GladeClip();
-  
-  void fire();
-};
-
-
-// Transformers
-///////////////////////////////////////////
-
-class GladeBlend : public GladeNode {
-public:
-  byte blend;
-  GladeBlend(byte blend);
-  ~GladeBlend();
-  
-  void fire();
-};
-
-class GladeAdd : public GladeNode {
-public:
-  GladeAdd();
-  ~GladeAdd();
-  
-  void fire();
-};
-
-class GladeDelay : public GladeNode {
-  byte *_record;
-  int _delayLength;
-  int _currentIndex;
-  
-public:
-  GladeDelay(int delayLength);
-  ~GladeDelay();
-  
-  void fire();
 };
 
 // Sinks
