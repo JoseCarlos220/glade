@@ -1,6 +1,8 @@
 #include <Audio.h>
 #include <Glade.h>
 
+#include <GladeClip.h>
+
 #include "sounddata.h"
 
 GladeClip source1(sounddata_data, sounddata_length);
