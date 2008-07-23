@@ -22,9 +22,7 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "WProgram.h"
 #include "WConstants.h"
-
 #include "Audio.h"
 
 DACBuffer::DACBuffer() {
@@ -32,7 +30,7 @@ DACBuffer::DACBuffer() {
   memset(_buffer, 0, AUDIO_BUFFER_SIZE);
 }
 
-boolean DACBuffer::write(byte value) {
+bool DACBuffer::write(uint8_t value) {
   // avoid overflowing the audio buffer (wait until space available)
   if (_writeHead - _playHead < AUDIO_BUFFER_SIZE) {
     _buffer[ (_writeHead++) % AUDIO_BUFFER_SIZE ] = value;
@@ -42,7 +40,7 @@ boolean DACBuffer::write(byte value) {
   }
 }
 
-boolean DACBuffer::read(byte *value) {
+bool DACBuffer::read(uint8_t *value) {
   if (_playHead < _writeHead) {
     // XXX we must add drop frame capability
     *value = _buffer[ (_playHead++) % AUDIO_BUFFER_SIZE ];
@@ -59,7 +57,7 @@ ISR(TIMER1_COMPA_vect) {
 
 PWMAudio::PWMAudio() : _sampleRate(0), _nChannels(MONO) {}
 
-void PWMAudio::start(byte nChannels, long sampleRate) {
+void PWMAudio::start(uint8_t nChannels, long sampleRate) {
   // Set n channels.
   _nChannels = nChannels;
 
@@ -168,13 +166,13 @@ void PWMAudio::stop() {
   }
 }
 
-void PWMAudio::write(byte value, byte channel) {
+void PWMAudio::write(uint8_t value, uint8_t channel) {
   if (channel < 2)
     _buffers[channel].write(value);
 }
   
 void PWMAudio::play() {
-  byte value;
+  uint8_t value;
   switch (_nChannels) {
   case STEREO:
     if (_buffers[RIGHT].read(&value))
