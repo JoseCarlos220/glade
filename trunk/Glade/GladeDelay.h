@@ -18,6 +18,7 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "WConstants.h"
 #include "Glade.h"
 
 #ifndef GLADE_DELAY_H

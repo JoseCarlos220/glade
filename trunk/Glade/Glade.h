@@ -20,13 +20,35 @@
 
 // MAJOR PROBLEM: NOT THE SAME SOUND IF I PUT THIS IN A .cpp FILE!!!
 
+
+extern "C" {
+  #include "WConstants.h"
+  #include <string.h>
+  #include <avr/pgmspace.h>
+}
+
 #include "Audio.h"
 
-#include <string.h>
-#include <avr/pgmspace.h>
+#include "cppfix.h"
 
 #ifndef GLADE_H
 #define GLADE_H
+
+#include <stdlib.h>
+
+// WHEN IN A .cpp FILE I NEED TO ADD THESE LINES (WHY??? I DON'T UNDERSTAND)
+/*#ifndef new
+void * operator new(size_t size)
+{
+  return malloc(size);
+}
+#endif
+#ifndef delete
+void operator delete(void * ptr)
+{
+  free(ptr);
+}
+#endif*/
 
 #define BUFFER_SIZE 16
 
@@ -102,7 +124,7 @@ protected:
 public:
   void build();
   void step();
-  void run(long time);
+  void run(unsigned long time);
 };
 
 extern GladeEngine Glade;
