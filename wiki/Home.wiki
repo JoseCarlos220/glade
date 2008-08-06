@@ -10,7 +10,7 @@
 = Features =
 
 == Supported ==
- * mono audio playback
+ * mono and stereo audio playback
  * dataflow connections
  * feedback
  * generators: square wave, audio clip
@@ -18,8 +18,10 @@
  * sinks: output (dac)
 
 == Targeted ==
- * stereo audio playback
  * generators: triangle/razor wave, sine wave (osc)
+ * basic operators: + - * /
+ * source: analog-digital-converter (adc)
+ * [http://chuck.cs.princeton.edu/doc/program/ugen.html others...]
 
 = Example =
 {{{
