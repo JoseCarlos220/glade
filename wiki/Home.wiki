@@ -27,9 +27,10 @@
 {{{
 #include <Audio.h>
 #include <Glade.h>
+#include <GladeSquare.h>
 
-// build a 440Hz frequency square wave generator with amplitude 100 (on a max of 127)
-GladeSquare source(440, 100);
+// build a 440Hz frequency square wave generator with an amplitude of 60%
+GladeSquare source(440, 0.6f);
 
 void setup() {
   dac.connect(0, &source); // connect the source to the dac (output)
