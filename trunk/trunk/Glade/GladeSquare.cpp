@@ -17,7 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "WConstants.h"
+
+// XXX: For some reason stdlib MUST be included BEFORE WConstants.h in 
+// the .CPP file. Otherwise syntax errors in stdlib.h happen (strange...)
+#include <stdlib.h>
+
 #include "GladeSquare.h"
 
 GladeSquare::GladeSquare(float frequency, float amplitude, float dutyCycle) : GladeNode(0) {

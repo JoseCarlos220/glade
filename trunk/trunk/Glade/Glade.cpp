@@ -18,24 +18,11 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// For some reason stdlib MUST be included BEFORE WConstants.h
+// XXX: For some reason stdlib MUST be included BEFORE WConstants.h in 
+// the .CPP file. Otherwise syntax errors in stdlib.h happen (strange...)
 #include <stdlib.h>
-#include "WConstants.h"
-#include "Glade.h"
 
-// WHEN IN A .cpp FILE I NEED TO ADD THESE LINES (WHY??? I DON'T UNDERSTAND)
-#ifndef new
-void * operator new(size_t size)
-{
-  return malloc(size);
-}
-#endif
-#ifndef delete
-void operator delete(void * ptr)
-{
-  free(ptr);
-}
-#endif
+#include "Glade.h"
 
 // GladeNode
 ///////////////////////////////////////////
@@ -113,7 +100,7 @@ void GladeEngine::step() {
     _line[i]->fire();
 }
 
-void GladeEngine::run(long time) {
+void GladeEngine::run(unsigned long time) {
   time += millis(); // reuse the variable to set max time
   while (millis() < time) {
     step();
