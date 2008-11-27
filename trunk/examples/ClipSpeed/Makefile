@@ -59,13 +59,14 @@ EFUSES=0xF9
 # Below here nothing should be changed...
 
 ARDUINO = $(INSTALL_DIR)/hardware/cores/arduino
+LIBRARIES = $(INSTALL_DIR)/hardware/libraries
 EEPROM = $(INSTALL_DIR)/hardware/libraries/EEPROM
 AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
 SRC =  $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c \
 $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
 $(ARDUINO)/wiring_pulse.c $(ARDUINO)/wiring_serial.c \
 $(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
-CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp $(ARDUINO)/Audio.cpp $(ARDUINO)/Glade.cpp $(ARDUINO)/GladeClip.cpp
+CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp $(LIBRARIES)/Audio/Audio.cpp $(LIBRARIES)/Glade/Glade.cpp $(LIBRARIES)/Glade/GladeClip.cpp
 FORMAT = ihex
 
 
@@ -84,8 +85,8 @@ CDEFS = -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
 
 # Place -I options here
-CINCS = -I$(ARDUINO) -I$(EEPROM)
-CXXINCS = -I$(ARDUINO) -I$(EEPROM)
+CINCS = -I$(ARDUINO) -I$(EEPROM) -I$(LIBRARIES)/Audio -I$(LIBRARIES)/Glade
+CXXINCS = -I$(ARDUINO) -I$(EEPROM) -I$(LIBRARIES)/Audio -I$(LIBRARIES)/Glade
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C

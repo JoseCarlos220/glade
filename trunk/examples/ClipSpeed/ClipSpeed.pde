@@ -1,6 +1,5 @@
 #include <Audio.h>
 #include <Glade.h>
-
 #include <GladeClip.h>
 
 #include "sounddata.h"
