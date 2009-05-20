@@ -1,8 +1,7 @@
 /*
  * This file is part of Glade.
  * 
- * (c) 2008 Sofian Audry (info@sofianaudry.com)
- *          Jean-Sébastien Senécal (js@drone.ws)
+ * (c) 2008-2009 Sofian Audry | info((@))sofianaudry((.))com
  *
  * This code is an wrapper around the speaker_pcm program by
  * Michael Smith (michael@hurts.ca), available at 
