@@ -23,6 +23,7 @@
 */
 
 #include "Audio.h"
+#include "WConstants.h"
 
 // This is called at 8000 Hz to load the next sample.
 ISR(TIMER1_COMPA_vect) {
