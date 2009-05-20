@@ -24,31 +24,6 @@
 
 #include "Audio.h"
 
-DACBuffer::DACBuffer() {
-  _playHead = _writeHead = 0;
-  memset(_buffer, 0, AUDIO_BUFFER_SIZE);
-}
-
-bool DACBuffer::write(uint8_t value) {
-  // avoid overflowing the audio buffer (wait until space available)
-  if (_writeHead - _playHead < AUDIO_BUFFER_SIZE) {
-    _buffer[ (_writeHead++) % AUDIO_BUFFER_SIZE ] = value;
-    return true;
-  } else {
-    return false;
-  }
-}
-
-bool DACBuffer::read(uint8_t *value) {
-  if (_playHead < _writeHead) {
-    // XXX we must add drop frame capability
-    *value = _buffer[ (_playHead++) % AUDIO_BUFFER_SIZE ];
-    return true;
-  } else {
-    return false;
-  }
-}
-
 // This is called at 8000 Hz to load the next sample.
 ISR(TIMER1_COMPA_vect) {
   Audio.play();
@@ -165,21 +140,23 @@ void PWMAudio::stop() {
   }
 }
 
-void PWMAudio::write(uint8_t value, uint8_t channel) {
-  if (channel < 2)
-    _buffers[channel].write(value);
-}
+//void PWMAudio::write(uint8_t value, uint8_t channel) {
+//  if (channel < 2)
+//    _buffers[channel].write(value);
+//}
   
-void PWMAudio::play() {
-  uint8_t value;
-  switch (_nChannels) {
-  case STEREO:
-    if (_buffers[RIGHT].read(&value))
-      analogWrite(AUDIO_RIGHT_PIN, value);
-  case MONO:
-    if (_buffers[LEFT].read(&value))
-      analogWrite(AUDIO_LEFT_PIN, value);
-  }
-}
+//void PWMAudio::play() {
+//  uint8_t value;
+//  if (_buffers[LEFT].read(&value))
+//    analogWrite(AUDIO_LEFT_PIN, value);
+//  //switch (_nChannels) {
+//  //case STEREO:
+//  //  if (_buffers[RIGHT].read(&value))
+//  //    analogWrite(AUDIO_RIGHT_PIN, value);
+//  //case MONO:
+//  ///  if (_buffers[LEFT].read(&value))
+//  //    analogWrite(AUDIO_LEFT_PIN, value);
+//  //}
+//}
 
 PWMAudio Audio = PWMAudio();

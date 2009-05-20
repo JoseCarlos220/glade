@@ -22,7 +22,10 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "WConstants.h"
+//#include "WConstants.h"
+
+#include "DACBuffer.h"
+#include "WProgram.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -42,23 +45,11 @@
 #define AUDIO_RIGHT_PIN 11
 #endif
 
-#define AUDIO_BUFFER_SIZE 32
-
 #define MONO 1
 #define STEREO 2
 
 #define LEFT 0
 #define RIGHT 1
-
-class DACBuffer {
-  uint8_t _buffer[AUDIO_BUFFER_SIZE];
-  long _writeHead;
-  volatile long _playHead;
-public:
-  DACBuffer();
-  inline bool write(uint8_t value);
-  inline bool read(uint8_t *value);
-};
 
 class PWMAudio {
   DACBuffer _buffers[2];
@@ -74,8 +65,24 @@ public:
   void start(uint8_t nChannels = MONO, long sampleRate = 8000);
   void stop();
   
-  void write(uint8_t value, uint8_t channel = LEFT);
-  void play();
+  inline bool write(uint8_t value, uint8_t channel = LEFT) {
+    if (channel < 2)
+      return _buffers[channel].write(value);
+    else
+      return false;
+  }
+  
+  inline void play() {
+    uint8_t value;
+    switch (_nChannels) {
+    case STEREO:
+      if (_buffers[RIGHT].read(&value))
+        analogWrite(AUDIO_RIGHT_PIN, value);
+    case MONO:
+      if (_buffers[LEFT].read(&value))
+        analogWrite(AUDIO_LEFT_PIN, value);
+    }
+  }
 };
 
 extern PWMAudio Audio;
