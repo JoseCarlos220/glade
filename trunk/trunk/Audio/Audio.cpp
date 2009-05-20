@@ -141,23 +141,4 @@ void PWMAudio::stop() {
   }
 }
 
-//void PWMAudio::write(uint8_t value, uint8_t channel) {
-//  if (channel < 2)
-//    _buffers[channel].write(value);
-//}
-  
-//void PWMAudio::play() {
-//  uint8_t value;
-//  if (_buffers[LEFT].read(&value))
-//    analogWrite(AUDIO_LEFT_PIN, value);
-//  //switch (_nChannels) {
-//  //case STEREO:
-//  //  if (_buffers[RIGHT].read(&value))
-//  //    analogWrite(AUDIO_RIGHT_PIN, value);
-//  //case MONO:
-//  ///  if (_buffers[LEFT].read(&value))
-//  //    analogWrite(AUDIO_LEFT_PIN, value);
-//  //}
-//}
-
 PWMAudio Audio = PWMAudio();

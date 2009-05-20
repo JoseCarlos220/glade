@@ -29,15 +29,7 @@ public:
       return false;
     }
   }
-  /*
-    // avoid overflowing the audio buffer (wait until space available)
-    if (_writeHead - _playHead < AUDIO_BUFFER_SIZE) {
-      _buffer[ (_writeHead++) % AUDIO_BUFFER_SIZE ] = value;
-      return true;
-    } else {
-      return false;
-    }
-  }*/
+
   inline bool read(uint8_t *value) {
     if (_playHeadOffset > 0) {
       // XXX we must add drop frame capability
@@ -47,19 +39,6 @@ public:
       return false;
     }
   }
-/*
-  inline bool read(uint8_t *value) {
-    if (_playHead < _writeHead) {
-      // XXX we must add drop frame capability
-      *value = _buffer[ (_playHead++) % AUDIO_BUFFER_SIZE ];
-      return true;
-    } else {
-      return false;
-    }
-  }*/
-
-  //  inline bool write(uint8_t value);
-  //  inline bool read(uint8_t *value);
 };
 
 #endif
