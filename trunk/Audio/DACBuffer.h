@@ -34,6 +34,7 @@ class DACBuffer {
   uint8_t _buffer[AUDIO_BUFFER_SIZE];
   long _writeHead;
   volatile long _playHeadOffset; // = how far is play head from write head
+  
 public:
   DACBuffer();
 

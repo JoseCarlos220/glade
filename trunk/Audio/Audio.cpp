@@ -37,7 +37,7 @@ void PWMAudio::start(uint8_t nChannels, long sampleRate) {
 
   // Set sample rate
   _sampleRate = sampleRate;
-  
+
   // (don't know why we need to do this)
   switch (_nChannels) {
   case STEREO:
@@ -113,7 +113,7 @@ void PWMAudio::start(uint8_t nChannels, long sampleRate) {
 
   sei();
 }
-  
+
 void PWMAudio::stop() {
   // Disable playback per-sample interrupt.
 #if defined(__AVR_ATmega168__)
@@ -131,7 +131,7 @@ void PWMAudio::stop() {
 #else
   TCCR2 &= ~_BV(CS10);
 #endif
-  
+
   switch (_nChannels) {
   case STEREO:
     digitalWrite(AUDIO_RIGHT_PIN, LOW);
