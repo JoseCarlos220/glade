@@ -21,6 +21,8 @@
  * along with Glade.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//#include "WConstants.h"
+
 #include "DACBuffer.h"
 #include "WProgram.h"
 
@@ -55,13 +57,13 @@ class PWMAudio {
 
 public:
   PWMAudio();
-  
+
   long getSampleRate() const { return _sampleRate; }
   uint8_t nChannels() const { return _nChannels; }
-  
+
   void start(uint8_t nChannels = MONO, long sampleRate = 8000);
   void stop();
-  
+
   inline bool write(uint8_t value, uint8_t channel = LEFT) {
     if (channel < 2)
       return _buffers[channel].write(value);
