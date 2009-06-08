@@ -67,7 +67,7 @@ public:
   inline bool write(uint8_t value, uint8_t channel = LEFT) {
     return _buffers[channel].write(value);
   }
-  
+
   inline void play() {
     uint8_t value;
     switch (_nChannels) {
