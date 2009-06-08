@@ -29,13 +29,16 @@
 #include <Glade.h>
 #include <GladeSquare.h>
 
+// Performs a Audio.play() at every audio clock tick.
+DEFAULT_AUDIO_TICK();
+
 // build a 440Hz frequency square wave generator with an amplitude of 60%
 GladeSquare source(440, 0.6f);
 
 void setup() {
   dac.connect(0, &source); // connect the source to the dac (output)
   Glade.build(); // build the play line (needs to be called whenever connections are changed)
-  Audio.start(STEREO, 8000); // start audio playback in stereo mode at 8000 Hz
+  Audio.start(8000); // start audio playback at 8000 Hz
 }
 
 void loop()
