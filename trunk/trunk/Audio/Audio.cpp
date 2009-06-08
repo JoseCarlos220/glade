@@ -24,27 +24,41 @@
 #include "Audio.h"
 #include "WConstants.h"
 
-// This is called at 8000 Hz to load the next sample.
-ISR(TIMER1_COMPA_vect) {
-  Audio.play();
+unsigned long PWMAudio::_sampleRate = DEFAULT_AUDIO_SAMPLE_RATE;
+
+PWMAudio::PWMAudio(uint8_t channel) {
+  setChannel(channel);
 }
 
-PWMAudio::PWMAudio() : _sampleRate(0), _nChannels(MONO) {}
+void PWMAudio::setChannel(uint8_t channel) {
+  pinMode(channel, OUTPUT);
+  
+  // Do non-inverting PWM the pin (p.155)
+#if defined(__AVR_ATmega168__)
+  if (channel == RIGHT) {
+    TCCR2A = (TCCR2A | _BV(COM2A1)) & ~_BV(COM2A0);
+    TCCR2A &= ~(_BV(COM2B1) | _BV(COM2B0));
+    
+    _port = &OCR2A;
+  } else {
+    TCCR2A = (TCCR2A | _BV(COM2B1)) & ~_BV(COM2B0);
+    TCCR2A &= ~(_BV(COM2A1) | _BV(COM2A0));
+    
+    _port = &OCR2B;
+  }
+  
+  (*_port) = 0;
+#else
+  // XXX ***Not supported for now***.
+  //TCCR2 = (TCCR2 | _BV(COM21)) & ~_BV(COM20);
+#endif
 
-void PWMAudio::start(uint8_t nChannels, long sampleRate) {
-  // Set n channels.
-  _nChannels = nChannels;
+}
 
+void PWMAudio::start(unsigned long sampleRate) {
+  
   // Set sample rate
   _sampleRate = sampleRate;
-
-  // (don't know why we need to do this)
-  switch (_nChannels) {
-  case STEREO:
-    pinMode(AUDIO_RIGHT_PIN, OUTPUT);
-  case MONO:
-    pinMode(AUDIO_LEFT_PIN, OUTPUT);
-  }
 
   // Set up Timer 2 to do pulse width modulation on the speaker
   // pin.
@@ -53,7 +67,8 @@ void PWMAudio::start(uint8_t nChannels, long sampleRate) {
   // Use internal clock (datasheet p.160)
   ASSR &= ~(_BV(EXCLK) | _BV(AS2));
 #else
-  ASSR &= ~_BV(AS2);
+  // XXX ***Not supported for now***.
+  // ASSR &= ~_BV(AS2);
 #endif
 
   // Set fast PWM mode  (p.157)
@@ -61,31 +76,24 @@ void PWMAudio::start(uint8_t nChannels, long sampleRate) {
   TCCR2A |= _BV(WGM21) | _BV(WGM20);
   TCCR2B &= ~_BV(WGM22);
 #else
-  TCCR2 |= _BV(WGM21) | _BV(WGM20);
-#endif
-
-  // Do non-inverting PWM on pin OC2A (p.155)
-  // On the Arduino this is pin 11.
-#if defined(__AVR_ATmega168__)
-  TCCR2A = (TCCR2A | _BV(COM2A1)) & ~_BV(COM2A0);
-  TCCR2A &= ~(_BV(COM2B1) | _BV(COM2B0));
-#else
-  TCCR2 = (TCCR2 | _BV(COM21)) & ~_BV(COM20);
+  // XXX ***Not supported for now***.
+  // TCCR2 |= _BV(WGM21) | _BV(WGM20);
 #endif
 
   // No prescaler (p.158)
 #if defined(__AVR_ATmega168__)
   TCCR2B = (TCCR2B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
 #else
-  TCCR2 = (TCCR2 & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
+  // XXX ***Not supported for now***.
+  // TCCR2 = (TCCR2 & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
 #endif
 
   // Set initial pulse width to the first sample.
-#if defined(__AVR_ATmega168__)
-  OCR2A = 0;
-#else
-  OCR2 = 0;
-#endif
+//#if defined(__AVR_ATmega168__)
+//  OCR2A = 0;
+//#else
+//  OCR2 = 0;
+//#endif
 
   // Set up Timer 1 to send a sample every interrupt.
 
@@ -108,7 +116,8 @@ void PWMAudio::start(uint8_t nChannels, long sampleRate) {
 #if defined(__AVR_ATmega168__)
   TIMSK1 |= _BV(OCIE1A);
 #else
-  TIMSK |= _BV(OCIE1A);
+  // XXX ***Not supported for now***.
+  // TIMSK |= _BV(OCIE1A);
 #endif
 
   sei();
@@ -119,7 +128,8 @@ void PWMAudio::stop() {
 #if defined(__AVR_ATmega168__)
   TIMSK1 &= ~_BV(OCIE1A);
 #else
-  TIMSK &= ~_BV(OCIE1A);
+  // XXX ***Not supported for now***.
+  // TIMSK &= ~_BV(OCIE1A);
 #endif
 
   // Disable the per-sample timer completely.
@@ -129,15 +139,9 @@ void PWMAudio::stop() {
 #if defined(__AVR_ATmega168__)
   TCCR2B &= ~_BV(CS10);
 #else
-  TCCR2 &= ~_BV(CS10);
+  // XXX ***Not supported for now***.
+  // TCCR2 &= ~_BV(CS10);
 #endif
-
-  switch (_nChannels) {
-  case STEREO:
-    digitalWrite(AUDIO_RIGHT_PIN, LOW);
-  case MONO:
-    digitalWrite(AUDIO_LEFT_PIN, LOW);
-  }
 }
 
-PWMAudio Audio = PWMAudio();
+PWMAudio Audio = PWMAudio(CHANNEL_DEFAULT);
