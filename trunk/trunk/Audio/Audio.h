@@ -65,10 +65,7 @@ public:
   void stop();
 
   inline bool write(uint8_t value, uint8_t channel = LEFT) {
-    if (channel < 2)
-      return _buffers[channel].write(value);
-    else
-      return false;
+    return _buffers[channel].write(value);
   }
   
   inline void play() {
