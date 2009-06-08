@@ -36,49 +36,61 @@
 #define AUDIO_H
 
 #if defined(__AVR_ATmega168__)
-#define AUDIO_LEFT_PIN 3
-#define AUDIO_RIGHT_PIN 11
+#define LEFT 3
+#define RIGHT 11
+#define CHANNEL_DEFAULT LEFT
 #else
+#error "Only ATmega168 supported for now"
 // no stereo support for now on ATmega8
-#define AUDIO_LEFT_PIN 11
-#define AUDIO_RIGHT_PIN 11
+//#define AUDIO_LEFT_PIN 11
+//#define AUDIO_RIGHT_PIN 11
 #endif
 
-#define MONO 1
-#define STEREO 2
+#define AUDIO_BUFFER_SIZE 32
+#define DEFAULT_AUDIO_SAMPLE_RATE 8000
 
-#define LEFT 0
-#define RIGHT 1
+#define AUDIO_TICK ISR(TIMER1_COMPA_vect)
+#define PWM_AUDIO_PLAY(object) object.play();
+
+#define DEFAULT_AUDIO_TICK() AUDIO_TICK { PWM_AUDIO_PLAY(Audio); }
 
 class PWMAudio {
-  DACBuffer _buffers[2];
-  long _sampleRate;
-  uint8_t _nChannels;
+  static unsigned long _sampleRate;
+  volatile uint8_t *_port;
+  uint8_t _value; // internal use
+  DACBuffer _buffer;
+  
+public:
+  PWMAudio(uint8_t channel);
+  
+  void setChannel(uint8_t channel);
+
+  static void start(unsigned long sampleRate = DEFAULT_AUDIO_SAMPLE_RATE);
+  static void stop();
 
 public:
   PWMAudio();
-
-  long getSampleRate() const { return _sampleRate; }
-  uint8_t nChannels() const { return _nChannels; }
-
-  void start(uint8_t nChannels = MONO, long sampleRate = 8000);
-  void stop();
-
-  inline bool write(uint8_t value, uint8_t channel = LEFT) {
-    return _buffers[channel].write(value);
+  
+  inline bool write(uint8_t value) {
+    return _buffer.write(value);
   }
-
-  inline void play() {
-    uint8_t value;
-    switch (_nChannels) {
-    case STEREO:
-      if (_buffers[RIGHT].read(&value))
-        analogWrite(AUDIO_RIGHT_PIN, value);
-    case MONO:
-      if (_buffers[LEFT].read(&value))
-        analogWrite(AUDIO_LEFT_PIN, value);
+  
+  inline bool write(uint8_t value, uint16_t timeOut) {
+    uint32_t startTime = millis();
+    while (millis() - startTime < timeOut) {
+      if (write(value))
+        return true;
     }
+    return false;
   }
+  
+  inline bool play() {
+    if (_buffer.read(&_value)) {
+      (*_port) = _value;
+    } else
+      return false;
+  }
+  
 };
 
 extern PWMAudio Audio;
