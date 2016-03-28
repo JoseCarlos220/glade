@@ -1,0 +1,1 @@
+**Glade** is a free software audio library for [Arduino](http://arduino.cc) (for use with Atmega8 and Atmega168 chips). The library provides basic functions for 8-bit audio playback using PWM, together with a digital audio processing library inspired from softwares such as [PureData](http://puredata.info) and [ChucK](http://chuck.cs.princeton.edu/).
